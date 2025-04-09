@@ -1,0 +1,21 @@
+/* Elements specific to the rules page */
+.center-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 5px solid black;
+    border-radius: 25px;
+    background-color: darkgray;
+    padding:10px;
+    margin: 5px;
+    max-width: 95%;
+}
+
+.content-box {
+    text-align: left;
+    max-width: 600px;
+}
+
+li{
+    font-family: "Avenir Next Condensed", serif;
+}

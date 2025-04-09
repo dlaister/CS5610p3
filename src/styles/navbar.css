@@ -1,0 +1,45 @@
+/* navbar elements */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.navbar ul{
+    display: flex;
+    list-style: none;
+    background-color: red;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.navbar li{
+    float: left;
+    flex: 1;
+}
+
+.navbar a{
+    text-decoration: none;
+    color: white;
+    display: block;
+    padding: 10px;
+    text-align: center;
+}
+
+.navbar a:hover{
+    background-color: blue;
+    transition: all 0.5s ease;
+    transform: scale(1.1);
+}
+
+.active-page{
+    background-color: black;
+}
+
+body {
+    padding-top: 20px;
+}

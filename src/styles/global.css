@@ -1,0 +1,98 @@
+/* Common elements including sizing effect (mobile application) */
+main{
+    padding-top: 50px;
+}
+
+.main {
+    padding-bottom: 100px;
+}
+
+/* Main container using grid layout */
+.main-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    height: 100%;
+    max-width: 700px;
+    padding: 20px;
+    border: 2px solid red;
+    border-radius: 8px;
+}
+
+.sub-main {
+    text-align: center;
+    padding: 15px;
+}
+
+.FirstBattle {
+    text-align: center;
+    padding: 20px;
+}
+
+h1{
+    text-align: center;
+    font-family: "Myanmar MN", cursive;
+}
+
+h3{
+    text-align: center;
+    font-family: 'Helvetica Neue',serif;
+}
+
+body{
+    margin: 0;
+    background-color: orange;
+}
+
+.paragraph {
+    font-family: "Avenir Next Condensed", cursive;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+p {
+    padding-top: 10px;
+}
+
+.italics{
+    font-style: italic;
+}
+
+.red-text{
+    color: red;
+    font-family: "Euphemia UCAS", serif;
+}
+
+.blue-text{
+    color: blue;
+    font-family: "Euphemia UCAS", serif;
+}
+
+/* page sizing effect (mobile application) */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: repeat(11, minmax(30px, 1fr)); /* Adjust column sizes */
+    }
+
+    body {
+        background-color: darkorange;
+    }
+
+    .cell, .header, .row-header {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid-container {
+        grid-template-columns: repeat(11, minmax(20px, 1fr));
+    }
+
+    body {
+        background-color: rgba(255, 128, 0, 0.83);
+    }
+
+    .cell, .header, .row-header {
+        font-size: 0.6rem; /* Further reduce font size */
+    }
+}

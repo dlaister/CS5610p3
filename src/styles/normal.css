@@ -1,0 +1,189 @@
+/* Style for board and headers */
+.board {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.board-headers {
+    display: flex;
+}
+
+.board-description {
+    text-align: center;
+    padding: 10px;
+}
+
+.header-cell {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border: 1px solid white;
+    background-color: #424242;
+    color: white;
+}
+
+.grid-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.board-row {
+    display: flex;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell.ship {
+    background-color: #888;
+}
+
+.top-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.restart-button {
+    padding: 10px;
+    font-size: 14px;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    background-color: lightskyblue;
+    border: 1px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.cell:hover {
+    background-color: orange;
+    cursor: pointer;
+}
+
+
+.all-placed-message {
+    font-size: 1.2rem;
+    color: green;
+    font-weight: bold;
+    padding-bottom: 10px;
+}
+
+
+.hit {
+    background-color: lightgreen;
+}
+
+.miss {
+    background-color: lightcoral;
+}
+
+
+.timer-reset-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+.timerColor {
+    color: #424242;
+    background-color: red;
+    padding: 5px;
+    border: 1px solid white;
+    border-radius: 15px;
+}
+
+.timer-reset-container p {
+    font-size: 16px;
+    margin-right: 15px;
+}
+
+
+.ship {
+    background-color: transparent; /* Remove gray background */
+    padding: 5px;
+    font-weight: bold;
+}
+
+.ship-selection {
+    display: flex;
+    flex-direction: column;
+}
+
+/*!* Shared styling *!*/
+.ship-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    width: 100%;
+    border-radius: 15px;
+    color: Black;
+    font-weight: bold;
+}
+
+
+/* Available Ships and their colors */
+.ship-container.carrier {
+    background-color: #ff6666;
+    border: 1px solid white;
+}
+
+.ship-container.battleship {
+    background-color: #66b3ff;
+    border: 1px solid white;
+}
+
+.ship-container.cruiser {
+    background-color: #99ff99;
+    border: 1px solid white;
+}
+
+.ship-container.submarine {
+    background-color: #ffcc66;
+    border: 1px solid white;
+}
+
+.ship-container.destroyer {
+    background-color: #cc99ff;
+    border: 1px solid white;
+}
+
+
+/* Board cell colors Available Ships */
+.cell.carrier {
+    background-color: #ff6666;
+}
+
+.cell.battleship {
+    background-color: #66b3ff;
+}
+
+.cell.cruiser {
+    background-color: #99ff99;
+}
+
+.cell.submarine {
+    background-color: #ffcc66;
+}
+
+.cell.destroyer {
+    background-color: #cc99ff;
+}

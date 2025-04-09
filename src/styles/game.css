@@ -1,0 +1,97 @@
+/* Elements specific to the sample game page */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+}
+
+.game-mode {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+/* Container using flexbox layout */
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Text-box */
+.text-box {
+    width: 100%;
+    text-align: center;
+    grid-row: 1;
+}
+
+/* Grid container */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(11, 50px);
+    grid-template-rows: repeat(12, 50px);
+    gap: 1px;
+    background-color: #fd7390;
+    grid-row: 2;
+    /*margin-top: 10px;  !* Space between text-box and grid *!*/
+}
+
+/* Header (X Axis) */
+.header {
+    background-color: #424242;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+/* Row Header (Y Axis) */
+.row-header {
+    background-color: #424242;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+
+/* Cells */
+.cell {
+    background-color: lightskyblue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid white;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect */
+.cell:hover {
+    background-color: orange;
+    cursor: pointer;
+}
+
+/* Hit and miss styling */
+.hit {
+    background-color: lightgreen;
+}
+
+.miss {
+    background-color: lightcoral;
+}
+
+.restart-button {
+    padding: 10px 20px;
+    margin: 10px 0;
+    background-color: darkgray;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.ship {
+    background-color: darkgray;
+}
