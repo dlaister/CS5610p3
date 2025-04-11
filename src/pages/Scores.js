@@ -3,6 +3,7 @@ import '../styles/global.css';
 import '../styles/scores.css';
 import Footer from '../components/Footer';
 
+{/* TODO -- update to use the database of scores and users*/}
 
 function Scores() {
     return (
