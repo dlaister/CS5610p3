@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Rules from "./pages/Rules";
 import Scores from "./pages/Scores";
@@ -7,9 +8,11 @@ import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
 
 // Import Game and its sub-pages
-import Game from "./pages/game/Game";  // ✅ Make sure this import is correct
+import Game from "./pages/game/Game";
 import Easy from "./pages/game/Easy";
 import Normal from "./pages/game/Normal";
+import Register from "./pages/Register";
+
 
 function App() {
     return (
@@ -19,6 +22,9 @@ function App() {
                 <Routes>
 
                     {/* TODO -- add login/log out and sign up - log should be applied for all three depending on the situation*/}
+
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
 
                     <Route path="/" element={<Home />} />
                     <Route path="/rules" element={<Rules />} />
