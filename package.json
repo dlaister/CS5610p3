@@ -23,6 +23,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "start": "node server.js",
     "server": "node server.js",
     "build": "vite build",
     "lint": "eslint .",
@@ -46,9 +47,6 @@
       "last 1 safari version"
     ]
   },
-  "type": "module",
-  "scripts": {
-    "start": "node server.js"
-  }
+  "type": "module"
 }
 

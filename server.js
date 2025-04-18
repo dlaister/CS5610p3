@@ -14,24 +14,13 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser())
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 
 
 // TODO -- add routes or remove?
 // API routes
 app.use('/api/user', userAPI);
 app.use('/api/battleship', battleshipAPI);
-
-
-// const MONGODB_URL = "mongodb+srv://derek:<CS561025>@clustercs5610.gud4glr.mongodb.net/?retryWrites=true&w=majority&appName=ClusterCS5610"
-// mongoose.connect(MONGODB_URL);
-// const db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'Error connecting to MongoDB:'));
-//
-//
-// app.listen(8000, function () {
-//     console.log('Starting server...');
-// })
 
 
 // MongoDB connection
