@@ -1,65 +1,81 @@
 // TODO -- user api
 
 import express from 'express';
-import bcrypt from 'bcrypt'; // password hashing
-import User from '../db/schedma/user.schema.js';
+import {registerUser, validateUser, updateUserPassword, deleteUser} from '../db/model/user.model.js';
 
 const router = express.Router();
 
 // Register
 router.post('/register', async (req, res) => {
-    const {username, password} = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({success: false, message: "Missing username or password."});
-    }
-
+    const { username, password } = req.body;
     try {
-        const existingUser = await User.findOne({userName: username});
-
-        if (existingUser) {
-            return res.status(409).json({success: false, message: "Username already taken."});
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = new User({
-            userName: username,
-            password: hashedPassword
-        });
-
-        await newUser.save();
-
-        res.cookie("username", username, {httpOnly: true});
-        return res.status(201).json({success: true, message: "User registered successfully."});
+        await registerUser(username, password);
+        res.cookie("user", username, { httpOnly: true });
+        res.status(200).json({ success: true, message: "User registered successfully" });
     } catch (error) {
-        console.error("Error during registration:", error);
-        return res.status(500).json({success: false, message: "Server error during registration."});
+        res.status(400).json({ success: false, message: error.message });
     }
 });
-
 
 // Login
 router.post('/login', async (req, res) => {
-    const {username, password} = req.body;
+    const { username, password } = req.body;
+    try {
+        const user = await validateUser(username, password); // already uses bcrypt
+        if (!user) return res.status(401).json({ success: false, message: "Invalid login" });
 
-    if (!username || !password) {
-        return res.status(400).json({success: false, message: "Missing username or password."});
+        res.cookie("user", username, { httpOnly: true });
+        res.status(200).json({ success: true, message: "Logged in" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
     }
-
-    const user = await User.findOne({userName: username});
-    if (!user) {
-        return res.status(404).json({success: false, message: "User not found."});
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-        return res.status(401).json({success: false, message: "Invalid password."});
-    }
-
-    res.cookie("username", username, {httpOnly: true});
-    return res.status(200).json({success: true, message: "Login successful."});
 });
 
+
+// Logout
+router.post('/logout', (req, res) => {
+    res.clearCookie("user");
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+});
+
+// Update password
+router.put('/update-password', async (req, res) => {
+    const owner = req.cookies.user;
+    const { newPassword } = req.body;
+
+    if (!owner || !newPassword) {
+        return res.status(400).json({ success: false, message: "Missing user or new password" });
+    }
+
+    try {
+        const updated = await updateUserPassword(owner, newPassword);
+        if (!updated) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        res.status(200).json({ success: true, message: "Password updated" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Delete user
+router.delete('/delete', async (req, res) => {
+    const owner = req.cookies.user;
+
+    if (!owner) {
+        return res.status(400).json({ success: false, message: "User not logged in" });
+    }
+
+    try {
+        const deleted = await deleteUser(owner);
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        res.clearCookie("user");
+        res.status(200).json({ success: true, message: "User deleted" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 export default router;

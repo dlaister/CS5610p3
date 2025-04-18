@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // TODO -- add routes or remove?
+// API routes
 app.use('/api/user', userAPI);
 app.use('/api/battleship', battleshipAPI);
 
@@ -32,39 +33,25 @@ app.use('/api/battleship', battleshipAPI);
 //     console.log('Starting server...');
 // })
 
-// Connect to MongoDB using the .env
-// const MONGODB_URL = process.env.MONGODB_URL;
-//
-// mongoose.connect(MONGODB_URL, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-// });
-//
-// const db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'Error connecting to MongoDB:'));
-// db.once('open', () => {
-//     console.log('Connected to MongoDB');
-// });
-//
-// // Start Server
-// app.listen(process.env.PORT || 8000, () => {
-//     console.log('Server is running...');
-// });
 
-// Connect to MongoDB using the .env with connection status for debugging
+// MongoDB connection
 const MONGODB_URL = process.env.MONGODB_URL;
 
-mongoose.connect(MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+if (!MONGODB_URL) {
+    console.error('MongoDB URI is not defined in the .env file');
+    process.exit(1);  // Exit if the MongoDB URI is not available
+}
+
+mongoose.connect(MONGODB_URL)
     .then(() => {
         console.log("MongoDB connected successfully.");
     })
     .catch((err) => {
         console.error("MongoDB connection failed:", err);
+        process.exit(1);  // Exit the process on connection failure
     });
 
+// Start the server
 app.listen(process.env.PORT || 8000, () => {
     console.log('Server is running...');
 });
