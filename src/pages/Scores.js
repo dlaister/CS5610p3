@@ -4,6 +4,14 @@ import '../styles/scores.css';
 import Footer from '../components/Footer';
 
 {/* TODO -- update to use the database of scores and users*/}
+/*
+* Score Page
+URL structure - /high-scores
+
+The score page will now work properly.  You should list out all the players, the name of wins and the number of losses.  The scores should be sorted by number of wins (if wins are equal among several pages, sort by fewest losses; if that is also tied, sort alphabetically by username).  Logged in and logged out users can see this page equally, but if a user is logged in, their username should be bold or in a unique color.
+
+* */
+
 
 function Scores() {
     return (

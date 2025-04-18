@@ -4,16 +4,22 @@ import Navbar from '../components/Navbar';
 import '../styles/global.css';
 import '../styles/home.css';
 import Footer from '../components/Footer';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 function Register() {
     const [formData, setFormData] = useState({
         username: '',
-        email: '',
         password: '',
         confirmPassword: ''
     });
+
+    useEffect(() => {
+        const isLoggedIn = document.cookie.includes("username=");
+        if (isLoggedIn) {
+            window.location.href = "/";
+        }
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -24,40 +30,42 @@ function Register() {
     };
 
     const handleSubmit = async () => {
-        const { username, email, password, confirmPassword } = formData;
+        const { username, password, confirmPassword } = formData;
+
+        if (!username || !password || !confirmPassword) {
+            alert("All fields are required.");
+            return;
+        }
 
         if (password !== confirmPassword) {
             alert("Passwords do not match.");
             return;
         }
 
-        const newUser = {
-            username,
-            email,
-            password
-            // MongoDB will generate _id automatically on the server
-        };
+        const newUser = { username, password };
 
         try {
             const response = await axios.post('/api/user/register', newUser);
-            console.log("User created:", response.data);
-            alert("Registration successful! Please login.");
-            window.location.href = "/login";
+            if (response.data.success) {
+                document.cookie = `username=${username}; path=/`;
+                alert("Registration successful!");
+                window.location.href = "/";
+            } else {
+                alert(response.data.message || "Registration failed.");
+            }
         } catch (error) {
             console.error("Registration error:", error);
-            alert("Failed to register. Please try again.");
+            alert("Registration failed. Username may already be taken.");
         }
     };
 
     return (
         <div className="home">
             <Navbar />
-
             <main className="main">
                 <header>
                     <h1>Register</h1>
                 </header>
-
                 <div className="main-container">
                     <h3>Create Account:</h3>
                     <div>
@@ -66,15 +74,6 @@ function Register() {
                             name="username"
                             onChange={handleChange}
                             value={formData.username}
-                        />
-                    </div>
-                    <div>
-                        Email:
-                        <input
-                            type="email"
-                            name="email"
-                            onChange={handleChange}
-                            value={formData.email}
                         />
                     </div>
                     <div>
@@ -103,7 +102,6 @@ function Register() {
                     </div>
                 </div>
             </main>
-
             <Footer />
         </div>
     );
