@@ -6,6 +6,7 @@ import '../styles/home.css';
 import Footer from '../components/Footer.jsx';
 import {useState, useEffect} from "react";
 import axios from "axios";
+import {Link} from "react-router-dom";
 
 function Login() {
     const [loginUsernameState, setLoginUsernameState] = useState('');
@@ -68,7 +69,7 @@ function Login() {
                         <button onClick={submitLogin}>Login</button>
                     </div>
                     <div>
-                        Don’t have an account? <a href="/src/pages/Register">Register here</a>
+                        Don’t have an account? <Link to="/register">Register here</Link>
                     </div>
                 </div>
             </main>

@@ -5,6 +5,7 @@ import {
     registerUser,
     validateUser,
     updateUserPassword,
+    getAllUsers,
     deleteUser
 } from '../db/model/user.model.js';
 
@@ -60,6 +61,16 @@ router.put('/update-password', async (req, res) => {
         res.status(200).json({success: true, message: "Password updated"});
     } catch (error) {
         res.status(500).json({success: false, message: error.message});
+    }
+});
+
+// Get all users
+router.get('/all', async (req, res) => {
+    try {
+        const users = await getAllUsers();
+        res.status(200).json({ success: true, users });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 

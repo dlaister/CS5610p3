@@ -33,6 +33,10 @@ export async function validateUser(userName, plainPassword) {
     return isMatch ? user : null;
 }
 
+export async function getAllUsers() {
+    return await User.find({}, 'username'); // exclude password for security
+}
+
 // Update user password
 export async function updateUserPassword(userName, newPassword) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
