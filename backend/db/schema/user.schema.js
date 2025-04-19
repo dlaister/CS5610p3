@@ -1,8 +1,8 @@
 // TODO -- users schema
 
-import mongoose, { Schema } from "mongoose";
+import {Schema} from "mongoose";
 
-const UserSchema = new Schema({
+const userSchema = new Schema({
     userName: {
         type: String,
         required: true,
@@ -13,7 +13,7 @@ const UserSchema = new Schema({
         type: String,
         required: true
     }
-}, { timestamps: true });
+}, {timestamps: true});
 
-export default UserSchema;
+export default userSchema;
 
