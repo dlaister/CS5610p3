@@ -1,13 +1,10 @@
-// TODO -- scores.api
-
-// scores.api.js
-
 import express from 'express';
 import {
     insertScore,
     getAllScores,
     findScoreByUsername,
     updateScoreByUsername,
+    patchScoreByUsername,
     deleteScoreByUsername
 } from '../db/model/scores.model.js';
 
@@ -26,63 +23,99 @@ router.get('/', async (req, res) => {
 
         res.status(200).json(scores);
     } catch (err) {
-        res.status(500).json({message: 'Error fetching scores', error: err.message});
+        res.status(500).json({ message: 'Error fetching scores', error: err.message });
     }
 });
 
 // POST a new score
 router.post('/', async (req, res) => {
-    const {username, wins, losses} = req.body;
+    const { username, wins, losses } = req.body;
 
     try {
         const existing = await findScoreByUsername(username);
         if (existing) {
-            return res.status(409).json({message: 'Username already exists.'});
+            return res.status(409).json({ message: 'Username already exists.' });
         }
 
-        const newScore = await insertScore({username, wins, losses});
+        const newScore = await insertScore({ username, wins, losses });
         res.status(201).json(newScore);
     } catch (err) {
-        res.status(500).json({message: 'Error creating score', error: err.message});
+        res.status(500).json({ message: 'Error creating score', error: err.message });
     }
 });
 
 // PUT to update a user’s score
 router.put('/:username', async (req, res) => {
-    const {username} = req.params;
-    const {wins, losses} = req.body;
+    const { username } = req.params;
+    const { wins, losses } = req.body;
 
     if (wins === undefined || losses === undefined) {
-        return res.status(400).json({message: 'Wins and losses must be provided.'});
+        return res.status(400).json({ message: 'Wins and losses must be provided.' });
     }
 
     try {
-        const updatedScore = await updateScoreByUsername(username, {wins, losses});
+        const updatedScore = await updateScoreByUsername(username, { wins, losses });
 
         if (!updatedScore) {
-            return res.status(404).json({message: 'User not found.'});
+            return res.status(404).json({ message: 'User not found.' });
         }
 
         res.status(200).json(updatedScore);
     } catch (err) {
-        res.status(500).json({message: 'Error updating score', error: err.message});
+        res.status(500).json({ message: 'Error updating score', error: err.message });
+    }
+});
+
+// PATCH to update the player's score (wins and losses) without updating the entire user
+router.patch('/update-score/:username', async (req, res) => {
+    const { username } = req.params;
+    const { wins, losses } = req.body;
+
+    try {
+        // Only update wins or losses if they are provided
+        const updatedData = {};
+
+        if (wins !== undefined) {
+            updatedData.wins = wins;
+        }
+
+        if (losses !== undefined) {
+            updatedData.losses = losses;
+        }
+
+        if (Object.keys(updatedData).length === 0) {
+            return res.status(400).json({ message: 'At least one of wins or losses must be provided.' });
+        }
+
+        const updatedScore = await patchScoreByUsername(username, updatedData);
+
+        if (!updatedScore) {
+            return res.status(404).json({ message: 'Player not found.' });
+        }
+
+        res.status(200).json({
+            message: `Player ${username}'s score updated!`,
+            updatedScore,
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating score', error: err.message });
     }
 });
 
 // DELETE a score by username
 router.delete('/:username', async (req, res) => {
-    const {username} = req.params;
+    const { username } = req.params;
 
     try {
         const deleted = await deleteScoreByUsername(username);
 
         if (!deleted) {
-            return res.status(404).json({message: 'User not found.'});
+            return res.status(404).json({ message: 'User not found.' });
         }
 
-        res.status(200).json({message: `Deleted ${username}'s score.`});
+        res.status(200).json({ message: `Deleted ${username}'s score.` });
     } catch (err) {
-        res.status(500).json({message: 'Error deleting score', error: err.message});
+        res.status(500).json({ message: 'Error deleting score', error: err.message });
     }
 });
 

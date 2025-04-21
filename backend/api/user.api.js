@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
     const {username, password} = req.body;
     try {
         await registerUser(username, password);
-        res.cookie("user", username, {httpOnly: true});
+        res.cookie("username", username, { httpOnly: true });
         res.status(200).json({success: true, message: "User registered successfully"});
     } catch (error) {
         res.status(400).json({success: false, message: error.message});
@@ -31,7 +31,7 @@ router.post('/login', async (req, res) => {
         if (!user) {
             return res.status(401).json({success: false, message: "Invalid login"});
         }
-        res.cookie("user", username, {httpOnly: true});
+        res.cookie("username", username, { httpOnly: true });
         res.status(200).json({success: true, message: "Logged in"});
     } catch (err) {
         res.status(500).json({success: false, message: err.message});
@@ -40,13 +40,13 @@ router.post('/login', async (req, res) => {
 
 // Logout
 router.post('/logout', (req, res) => {
-    res.clearCookie("user");
+    res.clearCookie("username");
     res.status(200).json({success: true, message: "Logged out successfully"});
 });
 
 // Update password
 router.put('/update-password', async (req, res) => {
-    const owner = req.cookies.user;
+    const owner = req.cookies.username;
     const {newPassword} = req.body;
 
     if (!owner || !newPassword) {
@@ -76,7 +76,7 @@ router.get('/all', async (req, res) => {
 
 // Delete user
 router.delete('/delete', async (req, res) => {
-    const owner = req.cookies.user;
+    const owner = req.cookies.username;
 
     if (!owner) {
         return res.status(400).json({success: false, message: "User not logged in"});
@@ -87,7 +87,7 @@ router.delete('/delete', async (req, res) => {
         if (!deleted) {
             return res.status(404).json({success: false, message: "User not found"});
         }
-        res.clearCookie("user");
+        res.clearCookie("username");
         res.status(200).json({success: true, message: "User deleted"});
     } catch (error) {
         res.status(500).json({success: false, message: error.message});

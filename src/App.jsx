@@ -8,11 +8,10 @@ import Scores from "./pages/Scores.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Footer from "./components/Footer.jsx";
 
-// Import Game and its subpages
-import Game from "./pages/game/Game.jsx";
-import Easy from "./pages/game/Easy.jsx";
-import Normal from "./pages/game/Normal.jsx";
-
+// Game Pages
+import AllGames from "./pages/game/AllGames.jsx";
+import NewEasy from "./pages/game/NewGame.jsx";
+import Game from "./pages/game/Game.jsx"; // 👈 new import
 
 function App() {
     return (
@@ -20,7 +19,6 @@ function App() {
             <div className="App">
                 <Navbar />
                 <Routes>
-
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
 
@@ -29,9 +27,9 @@ function App() {
                     <Route path="/scores" element={<Scores />} />
 
                     {/* Game Routes */}
-                    <Route path="/game" element={<Game />} />
-                    <Route path="/game/easy" element={<Easy />} />
-                    <Route path="/game/normal" element={<Normal />} />
+                    <Route path="/games" element={<AllGames />} />
+                    <Route path="/newgame" element={<NewEasy />} />
+                    <Route path="/game/:gameId" element={<Game />} />
 
                     {/* Catch-All for 404 */}
                     <Route path="*" element={<NotFound />} />

@@ -1,5 +1,3 @@
-// TODO -- scores.model
-
 import mongoose from "mongoose";
 import scoresSchema from "../schema/scores.schema.js";
 
@@ -23,6 +21,24 @@ export async function findScoreByUsername(username) {
 // Update a score by username
 export async function updateScoreByUsername(username, updateData) {
     return await Score.findOneAndUpdate({username}, updateData, {new: true}).exec();
+}
+
+// Patch (partially update) score by username (only wins and losses)
+export async function patchScoreByUsername(username, updateData) {
+    const updateFields = {}; // Initialize the fields to update
+
+    if (updateData.wins !== undefined) {
+        updateFields.wins = updateData.wins;
+    }
+    if (updateData.losses !== undefined) {
+        updateFields.losses = updateData.losses;
+    }
+
+    return await Score.findOneAndUpdate(
+        { username },
+        { $set: updateFields },
+        { new: true }
+    ).exec();
 }
 
 // Delete a score by username

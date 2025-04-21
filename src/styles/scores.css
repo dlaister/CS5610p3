@@ -18,3 +18,9 @@
 h4{
     text-align: left;
 }
+
+.highlight-user {
+    background-color: #f0f8ff; /* Light blue highlight, change as needed */
+    font-weight: bold;
+    color: blue;
+}

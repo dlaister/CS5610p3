@@ -6,6 +6,7 @@ import '../styles/home.css';
 import Footer from '../components/Footer.jsx';
 import { useState, useEffect } from "react";
 import axios from "axios";
+import {Link} from "react-router-dom";
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -98,7 +99,7 @@ function Register() {
                         <button onClick={handleSubmit}>Register</button>
                     </div>
                     <div>
-                        Already have an account? <a href="/src/pages/Login">Login here</a>
+                        Already have an account? <Link to="/login">Login here</Link>
                     </div>
                 </div>
             </main>
