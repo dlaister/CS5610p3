@@ -1,53 +1,73 @@
-// TODO -- user.model
-// TODO --encrypt here???
-
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
-import UserSchema from '../schema/user.schema.js';
 
-const User = mongoose.model("User", UserSchema);
+// Define the user schema
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true }
+});
 
-// Register a new user
-export async function registerUser(userName, plainPassword) {
-    const existingUser = await User.findOne({userName});
+// Hash the password before saving the user
+userSchema.pre('save', async function (next) {
+    if (this.isModified('password') || this.isNew) {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+    next();
+});
+
+// Method to validate user credentials during login
+userSchema.methods.isValidPassword = async function (password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+// Create the User model from the schema
+const User = mongoose.model('User', userSchema);
+
+// Function to register a new user
+export const registerUser = async (username, password) => {
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
-        throw new Error("Username already exists");
+        throw new Error('Username already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(plainPassword, 10);
-    const newUser = new User({userName, password: hashedPassword});
-    return await newUser.save();
-}
+    const user = new User({ username, password });
+    await user.save();
+};
 
-// Find a user by username
-export async function findUserByUsername(userName) {
-    return await User.findOne({userName});
-}
+// Function to validate user login
+export const validateUser = async (username, password) => {
+    const user = await User.findOne({ username });
+    if (user && await user.isValidPassword(password)) {
+        return user;
+    }
+    return null;  // Return null if user not found or password doesn't match
+};
 
-// Validate user login
-export async function validateUser(userName, plainPassword) {
-    const user = await User.findOne({userName});
-    if (!user) return null;
+// Function to update user password
+export const updateUserPassword = async (username, newPassword) => {
+    const user = await User.findOne({ username });
+    if (!user) {
+        throw new Error('User not found');
+    }
+    user.password = newPassword;
+    await user.save();
+};
 
-    const isMatch = await bcrypt.compare(plainPassword, user.password);
-    return isMatch ? user : null;
-}
+// Function to get all users' data (including id, username, and password)
+export const getAllUsers = async () => {
+    try {
+        // We select the '_id' (MongoDB id), 'username', and 'password' fields to return
+        const users = await User.find({}, '_id userName password');
+        return users;
+    } catch (error) {
+        throw new Error('Error fetching users');
+    }
+};
 
-export async function getAllUsers() {
-    return await User.find({}, 'username'); // exclude password for security
-}
+// Function to delete a user
+export const deleteUser = async (username) => {
+    const user = await User.findOneAndDelete({ username });
+    return user;  // Return the deleted user or null if not found
+};
 
-// Update user password
-export async function updateUserPassword(userName, newPassword) {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    return await User.findOneAndUpdate(
-        {userName},
-        {password: hashedPassword},
-        {new: true}
-    );
-}
-
-// Delete a user
-export async function deleteUser(userName) {
-    return await User.findOneAndDelete({userName});
-}
+export default User;

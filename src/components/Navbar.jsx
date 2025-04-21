@@ -6,25 +6,31 @@ function Navbar() {
     const [username, setUsername] = useState(null);
     const navigate = useNavigate();
 
-    // Check cookie on load and whenever the component re-renders
+    // Fetch username from cookie when component mounts
     useEffect(() => {
         const cookie = document.cookie
             .split("; ")
-            .find(row => row.startsWith("username="));
+            .find(row => row.startsWith("user=")); // Check for "user" cookie
         if (cookie) {
             const user = cookie.split("=")[1];
             setUsername(user);
         } else {
             setUsername(null); // Clear username if cookie doesn't exist
         }
-    }, []); // Empty array means this runs once on mount
+    }, []);
+
 
     const handleLogout = async () => {
         try {
-            await fetch("/api/user/logout", { method: "POST" });
-            document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            await fetch("/api/user/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            // Clear cookie manually (front-end)
+            document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             setUsername(null);
-            navigate("/"); // Redirect to homepage after logout
+            navigate("/"); // Redirect to homepage
         } catch (error) {
             console.error("Logout failed", error);
         }

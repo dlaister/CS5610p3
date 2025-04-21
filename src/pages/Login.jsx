@@ -1,20 +1,18 @@
-// TODO -- login page
-
 import Navbar from '../components/Navbar.jsx';
 import '../styles/global.css';
 import '../styles/home.css';
 import Footer from '../components/Footer.jsx';
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Login() {
     const [loginUsernameState, setLoginUsernameState] = useState('');
     const [loginPasswordState, setLoginPasswordState] = useState('');
 
-    // block login if currently logged in
+    // Block login if already logged in
     useEffect(() => {
-        const isLoggedIn = document.cookie.includes("username=");
+        const isLoggedIn = document.cookie.includes("user="); // Check for "user" cookie
         if (isLoggedIn) {
             window.location.href = "/";
         }
@@ -37,7 +35,7 @@ function Login() {
         try {
             const response = await axios.post('/api/user/login', request);
             if (response.data.success) {
-                document.cookie = `username=${loginUsernameState}; path=/`;
+                document.cookie = `user=${loginUsernameState}; path=/`; // Set "user" cookie
                 window.location.href = "/";
             } else {
                 alert("Invalid username or password.");
@@ -50,7 +48,7 @@ function Login() {
 
     return (
         <div className="home">
-            <Navbar/>
+            <Navbar />
             <main className="main">
                 <header>
                     <h1>Login</h1>
@@ -59,11 +57,11 @@ function Login() {
                     <h3>Login Here:</h3>
                     <div>
                         Username:
-                        <input onChange={updatedUsername}/>
+                        <input onChange={updatedUsername} />
                     </div>
                     <div>
                         Password:
-                        <input type="password" onChange={updatePassword}/>
+                        <input type="password" onChange={updatePassword} />
                     </div>
                     <div>
                         <button onClick={submitLogin}>Login</button>
@@ -73,7 +71,7 @@ function Login() {
                     </div>
                 </div>
             </main>
-            <Footer/>
+            <Footer />
         </div>
     );
 }

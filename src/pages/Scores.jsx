@@ -2,7 +2,7 @@ import Navbar from '../components/Navbar.jsx';
 import '../styles/global.css';
 import '../styles/scores.css';
 import Footer from '../components/Footer.jsx';
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 function Scores() {
     const [scores, setScores] = useState([]);
@@ -11,7 +11,7 @@ function Scores() {
     useEffect(() => {
         const cookie = document.cookie
             .split("; ")
-            .find(row => row.startsWith("username="));
+            .find(row => row.startsWith("user=")); // Updated to "user" cookie
         if (cookie) {
             const user = cookie.split("=")[1];
             setCurrentUser(user);
@@ -36,7 +36,7 @@ function Scores() {
 
     return (
         <div className="scores">
-            <Navbar/>
+            <Navbar />
 
             <main className="main">
                 <header>
@@ -50,7 +50,10 @@ function Scores() {
                             <h4>Player Name</h4>
                             {hasScores ? (
                                 scores.map((player, index) => (
-                                    <p key={index} className={player.username === currentUser ? "highlight-user" : ""}>
+                                    <p
+                                        key={index}
+                                        className={player.username === currentUser ? "highlight-user" : ""}
+                                    >
                                         {player.username}
                                     </p>
                                 ))
@@ -64,7 +67,9 @@ function Scores() {
                             <h4>Games Lost</h4>
                             {hasScores ? (
                                 scores.map((player, index) => (
-                                    <p key={index}>{player.losses}</p>
+                                    <p key={index} className={player.username === currentUser ? "highlight-user" : ""}>
+                                        {player.losses}
+                                    </p>
                                 ))
                             ) : (
                                 <p>No games lost.</p>
@@ -76,7 +81,9 @@ function Scores() {
                             <h4>Games Won</h4>
                             {hasScores ? (
                                 scores.map((player, index) => (
-                                    <p key={index}>{player.wins}</p>
+                                    <p key={index} className={player.username === currentUser ? "highlight-user" : ""}>
+                                        {player.wins}
+                                    </p>
                                 ))
                             ) : (
                                 <p>No games won.</p>
@@ -86,7 +93,7 @@ function Scores() {
                 </div>
             </main>
 
-            <Footer/>
+            <Footer />
         </div>
     );
 }

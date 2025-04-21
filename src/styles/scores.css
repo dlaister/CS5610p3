@@ -19,8 +19,12 @@ h4{
     text-align: left;
 }
 
+/* Highlight the current user's score */
 .highlight-user {
-    background-color: #f0f8ff; /* Light blue highlight, change as needed */
-    font-weight: bold;
-    color: blue;
+    background-color: #ffeb3b; /* Yellow background */
+    font-weight: bold; /* Make text bold */
+    color: #000; /* Black text color */
+    padding: 5px;
+    border-radius: 5px;
 }
+

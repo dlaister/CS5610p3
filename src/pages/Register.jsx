@@ -1,12 +1,10 @@
-// TODO -- register page
-
 import Navbar from '../components/Navbar.jsx';
 import '../styles/global.css';
 import '../styles/home.css';
 import Footer from '../components/Footer.jsx';
 import { useState, useEffect } from "react";
 import axios from "axios";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -16,7 +14,7 @@ function Register() {
     });
 
     useEffect(() => {
-        const isLoggedIn = document.cookie.includes("username=");
+        const isLoggedIn = document.cookie.includes("user="); // Check for "user" cookie
         if (isLoggedIn) {
             window.location.href = "/";
         }
@@ -48,7 +46,7 @@ function Register() {
         try {
             const response = await axios.post('/api/user/register', newUser);
             if (response.data.success) {
-                document.cookie = `username=${username}; path=/`;
+                document.cookie = `user=${username}; path=/`; // Set "user" cookie
                 alert("Registration successful!");
                 window.location.href = "/";
             } else {
