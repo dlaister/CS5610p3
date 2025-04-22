@@ -1,14 +1,36 @@
-// TODO -- all games
-
 import { Link } from "react-router-dom";
-import Navbar from '../../components/Navbar.jsx';
-import '../../styles/global.css';
-import '../../styles/game.css';
-import '../../styles/home.css';
-import Footer from '../../components/Footer.jsx';
+import Navbar from "../../components/Navbar.jsx";
+import "../../styles/global.css";
+import "../../styles/game.css";
+import "../../styles/home.css";
+import Footer from "../../components/Footer.jsx";
+import { useEffect, useState } from "react";
 
-function Games({ games, currentUser }) {
-    // Helpers
+
+function AllGames() {
+    const [games, setGames] = useState([]);
+    const [currentUser, setCurrentUser] = useState(null);
+
+    useEffect(() => {
+        // Fetch current user from cookies or session
+        fetch("/api/users/current", { credentials: "include" })
+            .then(res => res.json())
+            .then(data => {
+                setCurrentUser(data.username);
+
+                // Fetch all games related to the current user
+                fetch(`/api/games?userId=${data.username}`, { credentials: "include" })
+                    .then(res => res.json())
+                    .then(data => {
+                        // Sort games by start time in descending order
+                        const sortedGames = data.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+                        setGames(sortedGames);
+                    })
+                    .catch(err => console.error("Games fetch error:", err));
+            })
+            .catch(err => console.error("User fetch error:", err));
+    }, []);
+
     const isGameCompleted = (game) => !!game.winner;
     const isGameActive = (game) => game.player2 && !game.winner;
     const isOpenGame = (game) => !game.player2 && game.player1 !== currentUser;
@@ -31,9 +53,7 @@ function Games({ games, currentUser }) {
                 <header>
                     <h1>All Games</h1>
                 </header>
-
                 <div className="main-container">
-
                     {!currentUser ? (
                         <>
                             <section>
@@ -108,7 +128,6 @@ function Games({ games, currentUser }) {
                             </section>
                         </>
                     )}
-
                 </div>
             </main>
             <Footer />
@@ -116,4 +135,4 @@ function Games({ games, currentUser }) {
     );
 }
 
-export default Games;
+export default AllGames;

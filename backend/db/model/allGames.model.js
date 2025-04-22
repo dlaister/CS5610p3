@@ -1,5 +1,3 @@
-// TODO -- allGames.model
-
 import mongoose from "mongoose";
 import allGamesSchema from "../schema/allGames.schema.js";
 
@@ -12,7 +10,7 @@ export async function insertGame(game) {
 
 // Get all games
 export async function getAllGames() {
-    return await Game.find().exec();
+    return await Game.find().sort({ startTime: -1 }).exec(); // Sorting by start time descending
 }
 
 // Get a game by its ID

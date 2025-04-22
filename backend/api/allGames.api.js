@@ -1,36 +1,44 @@
-// TODO -- allGames.api
-
 import express from 'express';
 import {
     insertGame,
     findGamesByUserId,
+    getAllGames, // Added to get all games for general listing
     updateGameById,
     deleteGameById
 } from '../db/model/allGames.model.js';
 
 const router = express.Router();
 
-// GET games related to current user
+// GET all games, accessible to everyone (admin or logged-in users)
 router.get('/', async (req, res) => {
-    const {userId} = req.query;
-
     try {
-        if (!userId) {
-            return res.status(400).json({message: 'Missing userId in query.'});
-        }
-
-        const games = await findGamesByUserId(userId);
+        const games = await getAllGames();
         res.status(200).json(games);
     } catch (err) {
         res.status(500).json({message: 'Error fetching games', error: err.message});
     }
 });
 
+// GET current user's games
+router.get('/current', async (req, res) => {
+    const {userId} = req.cookies; // Assuming userId is stored in cookies for logged-in users
+    if (!userId) {
+        return res.status(401).json({message: 'Not logged in'});
+    }
+
+    try {
+        const games = await findGamesByUserId(userId);
+        res.status(200).json(games);
+    } catch (err) {
+        res.status(500).json({message: 'Error fetching games for user', error: err.message});
+    }
+});
+
 // POST: create a new game
 router.post('/', async (req, res) => {
-    try {
-        const {creator, players} = req.body;
+    const {creator, players} = req.body;
 
+    try {
         const newGame = await insertGame({creator, players, status: 'open'});
         res.status(201).json(newGame);
     } catch (err) {
