@@ -5,7 +5,7 @@ import SetEnemyBoard from '../../components/SetEnemyBoard.jsx';
 import '../../styles/global.css';
 import '../../styles/normal.css';
 
-function Normal() {
+function NewGame() {
     const BOARD_SIZE = 10;
 
     // Board state (10x10 grid represented as a 1D array)
@@ -350,4 +350,4 @@ function Normal() {
     );
 }
 
-export default Normal;
+export default NewGame;

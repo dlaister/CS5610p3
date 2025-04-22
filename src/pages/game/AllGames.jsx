@@ -5,46 +5,85 @@ import "../../styles/game.css";
 import "../../styles/home.css";
 import Footer from "../../components/Footer.jsx";
 import {useEffect, useState} from "react";
+import axios from "axios";
 
 
 function AllGames() {
-    const [games, setGames] = useState([]);
-    const [currentUser, setCurrentUser] = useState(null);
+    const [games, setGames] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [username, setUsername] = useState(null);
 
     useEffect(() => {
-        // Fetch current user from cookies or session
-        fetch("/api/users/current", {credentials: "include"})
-            .then(res => res.json())
-            .then(data => {
-                setCurrentUser(data.username);
+        const fetchGames = async () => {
+            try {
+                const res = await axios.get("/api/allGames", {
+                    withCredentials: true,
+                });
 
-                // Fetch all games related to the current user
-                fetch(`/api/games?userId=${data.username}`, {credentials: "include"})
-                    .then(res => res.json())
-                    .then(data => {
-                        // Sort games by start time in descending order
-                        const sortedGames = data.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
-                        setGames(sortedGames);
-                    })
-                    .catch(err => console.error("Games fetch error:", err));
-            })
-            .catch(err => console.error("User fetch error:", err));
+                if (res.data && res.data.username) {
+                    setUsername(res.data.username);
+                }
+
+                setGames(res.data.games || res.data); // fallback for non-logged-in
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching games:", err);
+                setError("Failed to load games");
+                setLoading(false);
+            }
+        };
+
+        fetchGames();
     }, []);
 
-    const isGameCompleted = (game) => !!game.winner;
-    const isGameActive = (game) => game.player2 && !game.winner;
-    const isOpenGame = (game) => !game.player2 && game.player1 !== currentUser;
-    const isMyOpenGame = (game) => !game.player2 && game.player1 === currentUser;
-    const isMyActiveGame = (game) => isGameActive(game) && (game.player1 === currentUser || game.player2 === currentUser);
-    const isMyCompletedGame = (game) => isGameCompleted(game) && (game.player1 === currentUser || game.player2 === currentUser);
-    const isOtherGame = (game) => (isGameActive(game) || isGameCompleted(game)) &&
-        game.player1 !== currentUser && game.player2 !== currentUser;
+    if (loading) return <div className="home"><Navbar/><main className="main"><p>Loading games...</p></main><Footer/></div>;
+    if (error) return <div className="home"><Navbar/><main className="main"><p>{error}</p></main><Footer/></div>;
 
-    const renderGameLink = (game) => (
-        <Link to={`/game/${game._id}`}>Game #{game._id}</Link>
+    const renderGames = (title, gamesList) => (
+        <section className="game-section">
+            <h2>{title}</h2>
+            {gamesList.length === 0 ? (
+                <p>No games to show.</p>
+            ) : (
+                <ul>
+                    {gamesList.map((game) => (
+                        <li key={game._id}>
+                            <Link to={`/game/${game._id}`}>Game #{game._id.slice(-5)}</Link>{" "}
+                            {game.creator && <span> by {game.creator}</span>}
+                            {game.players && (
+                                <span>
+                                    {" "}— Players: {game.players.map(p => p.username).join(" vs ")}
+                                </span>
+                            )}
+                            {game.status === "completed" && (
+                                <span> — Winner: {game.winner || "Unknown"}</span>
+                            )}
+                            <div>
+                                <small>
+                                    Started: {new Date(game.startTime).toLocaleString()}
+                                    {game.endTime && ` | Ended: ${new Date(game.endTime).toLocaleString()}`}
+                                </small>
+                            </div>
+                            {title === "Open Games" && (
+                                <button onClick={() => joinGame(game._id)}>Join</button>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </section>
     );
 
-    const renderTime = (date) => new Date(date).toLocaleString();
+    const joinGame = async (gameId) => {
+        try {
+            await axios.post(`/api/allGames/${gameId}/join`, {}, { withCredentials: true });
+            window.location.href = `/game/${gameId}`;
+        } catch (err) {
+            alert("Could not join game.");
+            console.error(err);
+        }
+    };
 
     return (
         <div className="home">
@@ -54,83 +93,18 @@ function AllGames() {
                     <h1>All Games</h1>
                 </header>
                 <div className="main-container">
-                    {!currentUser ? (
+                    {username ? (
                         <>
-                            <section>
-                                <h2>Active Games</h2>
-                                {games.filter(isGameActive).map(game => (
-                                    <div key={game._id}>
-                                        {renderGameLink(game)} - {game.player1} vs {game.player2} -
-                                        Started: {renderTime(game.startTime)}
-                                    </div>
-                                ))}
-                            </section>
-
-                            <section>
-                                <h2>Completed Games</h2>
-                                {games.filter(isGameCompleted).map(game => (
-                                    <div key={game._id}>
-                                        {renderGameLink(game)} - {game.player1} vs {game.player2} -
-                                        Winner: {game.winner} -
-                                        Started: {renderTime(game.startTime)} - Ended: {renderTime(game.endTime)}
-                                    </div>
-                                ))}
-                            </section>
+                            {renderGames("Open Games", games.openGames || [])}
+                            {renderGames("My Open Games", games.myOpenGames || [])}
+                            {renderGames("My Active Games", games.myActiveGames || [])}
+                            {renderGames("My Completed Games", games.myCompletedGames || [])}
+                            {renderGames("Other Games", games.otherGames || [])}
                         </>
                     ) : (
                         <>
-                            <section>
-                                <h2>Open Games</h2>
-                                {games.filter(isOpenGame).map(game => (
-                                    <div key={game._id}>
-                                        {renderGameLink(game)} - Created by {game.player1}
-                                        <button onClick={() => window.location.href = `/join/${game._id}`}>Join</button>
-                                    </div>
-                                ))}
-                            </section>
-
-                            <section>
-                                <h2>My Open Games</h2>
-                                {games.filter(isMyOpenGame).map(game => (
-                                    <div key={game._id}>
-                                        {renderGameLink(game)} - Started: {renderTime(game.startTime)}
-                                    </div>
-                                ))}
-                            </section>
-
-                            <section>
-                                <h2>My Active Games</h2>
-                                {games.filter(isMyActiveGame).map(game => (
-                                    <div key={game._id}>
-                                        {renderGameLink(game)} -
-                                        Opponent: {game.player1 === currentUser ? game.player2 : game.player1}
-                                    </div>
-                                ))}
-                            </section>
-
-                            <section>
-                                <h2>My Completed Games</h2>
-                                {games.filter(isMyCompletedGame).map(game => (
-                                    <div key={game._id}>
-                                        {renderGameLink(game)} -
-                                        Opponent: {game.player1 === currentUser ? game.player2 : game.player1} -
-                                        Started: {renderTime(game.startTime)} - Ended: {renderTime(game.endTime)} -
-                                        {game.winner === currentUser ? "You won!" : "You lost"}
-                                    </div>
-                                ))}
-                            </section>
-
-                            <section>
-                                <h2>Other Games</h2>
-                                {games.filter(isOtherGame).map(game => (
-                                    <div key={game._id}>
-                                        {renderGameLink(game)} - {game.player1} vs {game.player2} -
-                                        Started: {renderTime(game.startTime)}
-                                        {game.winner && <> - Ended: {renderTime(game.endTime)} -
-                                            Winner: {game.winner}</>}
-                                    </div>
-                                ))}
-                            </section>
+                            {renderGames("Active Games", games.activeGames || [])}
+                            {renderGames("Completed Games", games.completedGames || [])}
                         </>
                     )}
                 </div>

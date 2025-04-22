@@ -10,7 +10,7 @@ import Footer from "./components/Footer.jsx";
 
 // Game Pages
 import NewGame from "./pages/game/NewGame.jsx";
-import AllGames from "./pages/game/AllGames.jsx"; // 👈 new import
+import AllGames from "./pages/game/AllGames.jsx";
 
 function App() {
     return (
