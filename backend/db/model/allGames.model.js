@@ -5,10 +5,7 @@ const allGamesGames = mongoose.model('Game', allGamesSchema);
 
 // Create a new game
 export async function insertGame(game) {
-    if (!game.players || game.players.length !== 2) {
-        throw new Error('Game must have exactly two players');
-    }
-    return await allGamesGames.create(game);
+    return await allGamesGames.create(game); // Schema handles all validation
 }
 
 // Find a game by ID
@@ -30,5 +27,11 @@ export async function findGamesByUsername(username) {
         ],
     }).sort({ startTime: -1 }).exec();
 }
+
+// Delete a game by ID
+export async function deleteGameById(id) {
+    return await allGamesGames.findByIdAndDelete(id).exec();
+}
+
 
 export default allGamesGames;

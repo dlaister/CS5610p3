@@ -3,6 +3,7 @@ import {
     getAllGames,
     findGameById,
     insertGame,
+    deleteGameById,
 } from '../db/model/allGames.model.js';
 
 const router = express.Router();
@@ -67,7 +68,6 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create a new game
-// Create a new game
 router.post('/', async (req, res) => {
     try {
         const { creator, opponent, status } = req.body;
@@ -113,6 +113,21 @@ router.post('/', async (req, res) => {
         res.status(400).json({ error: 'Failed to create game', details: err.message });
     }
 });
+
+// Delete a game by ID
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await deleteGameById(id);
+        if (!deleted) {
+            return res.status(404).json({ error: 'Game not found' });
+        }
+        res.json({ message: 'Game deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete game', details: err.message });
+    }
+});
+
 
 
 export default router;
