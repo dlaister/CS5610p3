@@ -83,23 +83,23 @@ router.get('/all', async (req, res) => {
 });
 
 // Delete user
-router.delete('/delete', async (req, res) => {
-    const owner = req.cookies.user;
+router.delete('/delete/:userName', async (req, res) => {
+    const { username } = req.params;  // Extract the username from the URL parameter
 
-    if (!owner) {
-        return res.status(400).json({ success: false, message: "User not logged in" });
+    if (!username) {
+        return res.status(400).json({ success: false, message: "Username is required" });
     }
 
     try {
-        const deleted = await deleteUser(owner);
+        const deleted = await deleteUser(username);  // Pass the username to your deleteUser function
         if (!deleted) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
-        res.clearCookie("user"); // Clear the simple cookie for user
-        res.status(200).json({ success: true, message: "User deleted" });
+        res.status(200).json({ success: true, message: `User ${username} deleted` });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
+
 
 export default router;

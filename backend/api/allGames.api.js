@@ -2,7 +2,7 @@ import express from 'express';
 import {
     insertGame,
     findGamesByUserId,
-    getAllGames, // Added to get all games for general listing
+    getAllGames,
     updateGameById,
     deleteGameById
 } from '../db/model/allGames.model.js';

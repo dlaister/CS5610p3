@@ -1,5 +1,3 @@
-// TODO -- scores - this will not be needed, can be delegated
-
 import {Schema} from 'mongoose';
 
 const scoresSchema = new Schema({
