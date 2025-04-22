@@ -9,7 +9,6 @@ import NotFound from "./pages/NotFound.jsx";
 import Footer from "./components/Footer.jsx";
 
 // Game Pages
-import SomthingGames from "./pages/game/SomethingGames.jsx";
 import NewGame from "./pages/game/NewGame.jsx";
 import AllGames from "./pages/game/AllGames.jsx"; // 👈 new import
 
