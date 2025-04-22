@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import Navbar from "../../components/Navbar.jsx";
 import "../../styles/global.css";
 import "../../styles/game.css";
 import "../../styles/home.css";
 import Footer from "../../components/Footer.jsx";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
 
 function AllGames() {
@@ -13,13 +13,13 @@ function AllGames() {
 
     useEffect(() => {
         // Fetch current user from cookies or session
-        fetch("/api/users/current", { credentials: "include" })
+        fetch("/api/users/current", {credentials: "include"})
             .then(res => res.json())
             .then(data => {
                 setCurrentUser(data.username);
 
                 // Fetch all games related to the current user
-                fetch(`/api/games?userId=${data.username}`, { credentials: "include" })
+                fetch(`/api/games?userId=${data.username}`, {credentials: "include"})
                     .then(res => res.json())
                     .then(data => {
                         // Sort games by start time in descending order
@@ -48,7 +48,7 @@ function AllGames() {
 
     return (
         <div className="home">
-            <Navbar />
+            <Navbar/>
             <main className="main">
                 <header>
                     <h1>All Games</h1>
@@ -60,7 +60,8 @@ function AllGames() {
                                 <h2>Active Games</h2>
                                 {games.filter(isGameActive).map(game => (
                                     <div key={game._id}>
-                                        {renderGameLink(game)} - {game.player1} vs {game.player2} - Started: {renderTime(game.startTime)}
+                                        {renderGameLink(game)} - {game.player1} vs {game.player2} -
+                                        Started: {renderTime(game.startTime)}
                                     </div>
                                 ))}
                             </section>
@@ -69,7 +70,8 @@ function AllGames() {
                                 <h2>Completed Games</h2>
                                 {games.filter(isGameCompleted).map(game => (
                                     <div key={game._id}>
-                                        {renderGameLink(game)} - {game.player1} vs {game.player2} - Winner: {game.winner} -
+                                        {renderGameLink(game)} - {game.player1} vs {game.player2} -
+                                        Winner: {game.winner} -
                                         Started: {renderTime(game.startTime)} - Ended: {renderTime(game.endTime)}
                                     </div>
                                 ))}
@@ -100,7 +102,8 @@ function AllGames() {
                                 <h2>My Active Games</h2>
                                 {games.filter(isMyActiveGame).map(game => (
                                     <div key={game._id}>
-                                        {renderGameLink(game)} - Opponent: {game.player1 === currentUser ? game.player2 : game.player1}
+                                        {renderGameLink(game)} -
+                                        Opponent: {game.player1 === currentUser ? game.player2 : game.player1}
                                     </div>
                                 ))}
                             </section>
@@ -109,7 +112,8 @@ function AllGames() {
                                 <h2>My Completed Games</h2>
                                 {games.filter(isMyCompletedGame).map(game => (
                                     <div key={game._id}>
-                                        {renderGameLink(game)} - Opponent: {game.player1 === currentUser ? game.player2 : game.player1} -
+                                        {renderGameLink(game)} -
+                                        Opponent: {game.player1 === currentUser ? game.player2 : game.player1} -
                                         Started: {renderTime(game.startTime)} - Ended: {renderTime(game.endTime)} -
                                         {game.winner === currentUser ? "You won!" : "You lost"}
                                     </div>
@@ -122,7 +126,8 @@ function AllGames() {
                                     <div key={game._id}>
                                         {renderGameLink(game)} - {game.player1} vs {game.player2} -
                                         Started: {renderTime(game.startTime)}
-                                        {game.winner && <> - Ended: {renderTime(game.endTime)} - Winner: {game.winner}</>}
+                                        {game.winner && <> - Ended: {renderTime(game.endTime)} -
+                                            Winner: {game.winner}</>}
                                     </div>
                                 ))}
                             </section>
@@ -130,7 +135,7 @@ function AllGames() {
                     )}
                 </div>
             </main>
-            <Footer />
+            <Footer/>
         </div>
     );
 }
