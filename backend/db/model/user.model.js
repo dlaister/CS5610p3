@@ -57,7 +57,7 @@ export const updateUserPassword = async (username, newPassword) => {
 export const getAllUsers = async () => {
     try {
         // We select the '_id' (MongoDB id), 'username', and 'password' fields to return
-        const users = await User.find({}, '_id userName password');
+        const users = await User.find({}, '_id username password');
         return users;
     } catch (error) {
         throw new Error('Error fetching users');

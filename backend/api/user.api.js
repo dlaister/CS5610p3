@@ -83,7 +83,7 @@ router.get('/all', async (req, res) => {
 });
 
 // Delete user
-router.delete('/delete/:userName', async (req, res) => {
+router.delete('/delete/:username', async (req, res) => {
     const { username } = req.params;  // Extract the username from the URL parameter
 
     if (!username) {
