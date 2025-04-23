@@ -13,40 +13,54 @@ import {
 
 const router = express.Router();
 
-// Get all categorized games
+// Get all games
 router.get('/', async (req, res) => {
     try {
         const {username} = req.query;
 
-        if (!username) {
-            const allGames = await getAllGames();
-            const activeGames = allGames.filter(g => g.players.length === 2 && g.status === 'active');
-            const completedGames = allGames.filter(g => g.status === 'completed');
-            return res.json({activeGames, completedGames});
-        }
+        if (username) {
+            // Logged-in user: return all categorized sections
+            const [openGames, myOpenGames, myActiveGames, myCompletedGames, otherGames] =
+                await Promise.all([
+                    findOpenGamesExcludingUser(username),
+                    findMyOpenGames(username),
+                    findMyActiveGames(username),
+                    findMyCompletedGames(username),
+                    findOtherGames(username),
+                ]);
 
-        const [openGames, myOpenGames, myActiveGames, myCompletedGames, otherGames] =
-            await Promise.all([
-                findOpenGamesExcludingUser(username),
-                findMyOpenGames(username),
-                findMyActiveGames(username),
-                findMyCompletedGames(username),
-                findOtherGames(username),
+            return res.json({
+                openGames,
+                myOpenGames,
+                myActiveGames,
+                myCompletedGames,
+                otherGames,
+            });
+        } else {
+            // Logged-out user: return only open, active, and completed games
+            const [openGames, allGames] = await Promise.all([
+                findOpenGamesExcludingUser(), // now safe to call with no username
+                getAllGames(),
             ]);
 
-        return res.json({
-            openGames,
-            myOpenGames,
-            myActiveGames,
-            myCompletedGames,
-            otherGames,
-        });
+            const activeGames = allGames.filter(
+                (g) => g.players.length === 2 && g.status === 'active'
+            );
+            const completedGames = allGames.filter((g) => g.status === 'completed');
+
+            return res.json({
+                openGames,
+                activeGames,
+                completedGames,
+            });
+        }
     } catch (err) {
         res.status(500).json({error: 'Failed to fetch games', details: err});
     }
 });
 
-// My open games
+
+// Get my open games
 router.get('/my-open', async (req, res) => {
     const {username} = req.query;
     if (!username) return res.status(400).json({error: 'Username is required'});
@@ -59,7 +73,7 @@ router.get('/my-open', async (req, res) => {
     }
 });
 
-// My active games
+// Get my active games
 router.get('/my-active', async (req, res) => {
     const {username} = req.query;
     if (!username) return res.status(400).json({error: 'Username is required'});
@@ -77,7 +91,7 @@ router.get('/my-active', async (req, res) => {
     }
 });
 
-// My completed games
+// Get my completed games
 router.get('/my-completed', async (req, res) => {
     const {username} = req.query;
     if (!username) return res.status(400).json({error: 'Username is required'});
@@ -88,9 +102,9 @@ router.get('/my-completed', async (req, res) => {
             const opponent = game.players.find(player => player.username !== username);
             return {
                 ...game.toObject(),
-                opponent: opponent?.username, // Use players here
-                endTime: game.endTime, // Ensure endTime is present
-                winner: game.winner // Include winner field
+                opponent: opponent?.username,
+                endTime: game.endTime,
+                winner: game.winner
             };
         });
         res.json(gamesWithDetails);
@@ -100,19 +114,28 @@ router.get('/my-completed', async (req, res) => {
 });
 
 
-// Open games (excluding creator)
+// Get open games (excluding creator)
 router.get('/open', async (req, res) => {
-    const {username} = req.query;
+    const username = req.query.username || null;
 
     try {
-        const games = await findOpenGamesExcludingUser(username);
+        let games;
+
+        if (username) {
+            games = await findOpenGamesExcludingUser(username);
+        } else {
+            // If no username, return all open games
+            games = await findOpenGamesExcludingUser(); // Or a different function like findAllOpenGames()
+        }
+
         res.json(games);
     } catch (err) {
         res.status(500).json({error: 'Failed to fetch open games', details: err});
     }
 });
 
-// Other games
+
+// Get other games
 router.get('/other', async (req, res) => {
     const {username} = req.query;
     if (!username) return res.status(400).json({error: 'Username is required'});
@@ -185,6 +208,3 @@ router.delete('/:id', async (req, res) => {
 });
 
 export default router;
-
-
-// current build works for logged in only...

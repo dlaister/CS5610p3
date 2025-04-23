@@ -20,7 +20,6 @@ function AllGames() {
     const [username, setUsername] = useState(null);
 
     useEffect(() => {
-        // Detect login status by checking for the "user" cookie
         const cookie = document.cookie
             .split("; ")
             .find(row => row.startsWith("user="));
@@ -29,50 +28,35 @@ function AllGames() {
             const user = cookie.split("=")[1];
             setUsername(user);
 
-            // Fetch games for the logged-in user
             const fetchGames = async () => {
                 try {
-                    // Fetch my open games
+                    // Fetch all relevant game categories for logged-in user
                     const myOpenGamesRes = await axios.get("/api/allGames/my-open", {
                         params: {username: user},
                         withCredentials: true,
                     });
-                    const myOpenGames = myOpenGamesRes.data;
-
-                    // Fetch my active games
                     const myActiveGamesRes = await axios.get("/api/allGames/my-active", {
                         params: {username: user},
                         withCredentials: true,
                     });
-                    const myActiveGames = myActiveGamesRes.data;
-
-                    // Fetch my completed games
                     const myCompletedGamesRes = await axios.get("/api/allGames/my-completed", {
                         params: {username: user},
                         withCredentials: true,
                     });
-                    const myCompletedGames = myCompletedGamesRes.data;
-
-                    // Fetch open games (excluding user) only for logged-in users
                     const openGamesRes = await axios.get("/api/allGames/open", {
-                        withCredentials: true,
+                        withCredentials: true, // No username needed for open games
                     });
-                    const openGames = openGamesRes.data;
-
-                    // Fetch other games only for logged-in users
                     const otherGamesRes = await axios.get("/api/allGames/other", {
                         params: {username: user},
                         withCredentials: true,
                     });
-                    const otherGames = otherGamesRes.data;
 
-                    // Set the game data to state
                     setGames({
-                        myOpenGames,
-                        myActiveGames,
-                        myCompletedGames,
-                        openGames,
-                        otherGames,
+                        myOpenGames: myOpenGamesRes.data,
+                        myActiveGames: myActiveGamesRes.data,
+                        myCompletedGames: myCompletedGamesRes.data,
+                        openGames: openGamesRes.data,
+                        otherGames: otherGamesRes.data,
                     });
 
                     setLoading(false);
@@ -85,26 +69,16 @@ function AllGames() {
 
             fetchGames();
         } else {
-            // Fetch open and other games for logged-out users
+            // For logged-out users, only fetch open and other games
             const fetchOpenAndOtherGames = async () => {
                 try {
-                    // Fetch open games (no username needed)
-                    const openGamesRes = await axios.get("/api/allGames/open", {
-                        withCredentials: true,
-                    });
-                    const openGames = openGamesRes.data;
+                    const openGamesRes = await axios.get("/api/allGames/open", {withCredentials: true});
+                    const otherGamesRes = await axios.get("/api/allGames/other", {withCredentials: true});
 
-                    // Fetch other games (no username needed)
-                    const otherGamesRes = await axios.get("/api/allGames/other", {
-                        withCredentials: true,
-                    });
-                    const otherGames = otherGamesRes.data;
-
-                    // Set the game data to state
                     setGames({
-                        openGames,
-                        otherGames,
-                        myOpenGames: [], // Empty for logged-out users
+                        openGames: openGamesRes.data,
+                        otherGames: otherGamesRes.data,
+                        myOpenGames: [],
                         myActiveGames: [],
                         myCompletedGames: [],
                     });
@@ -116,7 +90,6 @@ function AllGames() {
                     setLoading(false);
                 }
             };
-
             fetchOpenAndOtherGames();
         }
     }, []);
@@ -124,7 +97,9 @@ function AllGames() {
     const renderGames = (title, gamesList, isActive = false, isCompleted = false) => (
         <section className="game-section">
             <h2>{title}</h2>
-            {gamesList.length === 0 ? (
+            {error ? (
+                <p>{error}</p>
+            ) : gamesList.length === 0 ? (
                 <p>No games to show.</p>
             ) : (
                 <ul>
@@ -136,7 +111,7 @@ function AllGames() {
                                 <small>
                                     Started: {new Date(game.startTime).toLocaleString()}
                                     {game.endTime && ` | Ended: ${new Date(game.endTime).toLocaleString()}`}
-                                    {isActive && game.players && game.players.map((player, index) => (
+                                    {isActive && game.players?.map((player, index) => (
                                         <span key={index}>{player.username} </span>
                                     ))}
                                     {isCompleted && game.winner && <span> | Winner: {game.winner}</span>}
@@ -150,15 +125,13 @@ function AllGames() {
     );
 
     if (loading) {
-        return <div className="home"><Navbar/>
-            <main className="main"><p>Loading games...</p></main>
-            <Footer/></div>;
-    }
-
-    if (error) {
-        return <div className="home"><Navbar/>
-            <main className="main"><p>{error}</p></main>
-            <Footer/></div>;
+        return (
+            <div className="home">
+                <Navbar/>
+                <main className="main"><p>Loading games...</p></main>
+                <Footer/>
+            </div>
+        );
     }
 
     return (
@@ -189,5 +162,3 @@ function AllGames() {
 }
 
 export default AllGames;
-
-// works for logged in only, does not show winner
