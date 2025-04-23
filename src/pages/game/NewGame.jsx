@@ -216,20 +216,20 @@ function NewGame() {
 
             <main className="main">
                 <header>
-                    <h1>Battleship Game, Normal Mode</h1>
+                    <h1>Battleship Game</h1>
                 </header>
 
-                {/* Timer and Reset Button */}
-                <div className="top-controls">
-                    <p>
-                        <span>Time:</span>
-                        <span className="timerColor">{formatTime(timer)}</span>
-                    </p>
+                {/*/!* Timer and Reset Button *!/*/}
+                {/*<div className="top-controls">*/}
+                {/*    <p>*/}
+                {/*        <span>Time:</span>*/}
+                {/*        <span className="timerColor">{formatTime(timer)}</span>*/}
+                {/*    </p>*/}
 
-                    <button onClick={resetGame} className="restart-button">
-                        Reset Game
-                    </button>
-                </div>
+                {/*    <button onClick={resetGame} className="restart-button">*/}
+                {/*        Reset Game*/}
+                {/*    </button>*/}
+                {/*</div>*/}
 
                 <div className="board-description">
                     Bellow, you can set your board and play against the enemy AI!

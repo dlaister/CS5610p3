@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import Navbar from "../../components/Navbar.jsx";
 import Footer from "../../components/Footer.jsx";
 import "../../styles/global.css";
 import "../../styles/game.css";
 import "../../styles/home.css";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import axios from "axios";
 
 function AllGames() {
@@ -34,21 +34,21 @@ function AllGames() {
                 try {
                     // Fetch my open games
                     const myOpenGamesRes = await axios.get("/api/allGames/my-open", {
-                        params: { username: user },
+                        params: {username: user},
                         withCredentials: true,
                     });
                     const myOpenGames = myOpenGamesRes.data;
 
                     // Fetch my active games
                     const myActiveGamesRes = await axios.get("/api/allGames/my-active", {
-                        params: { username: user },
+                        params: {username: user},
                         withCredentials: true,
                     });
                     const myActiveGames = myActiveGamesRes.data;
 
                     // Fetch my completed games
                     const myCompletedGamesRes = await axios.get("/api/allGames/my-completed", {
-                        params: { username: user },
+                        params: {username: user},
                         withCredentials: true,
                     });
                     const myCompletedGames = myCompletedGamesRes.data;
@@ -61,7 +61,7 @@ function AllGames() {
 
                     // Fetch other games only for logged-in users
                     const otherGamesRes = await axios.get("/api/allGames/other", {
-                        params: { username: user },
+                        params: {username: user},
                         withCredentials: true,
                     });
                     const otherGames = otherGamesRes.data;
@@ -121,8 +121,7 @@ function AllGames() {
         }
     }, []);
 
-
-    const renderGames = (title, gamesList) => (
+    const renderGames = (title, gamesList, isActive = false, isCompleted = false) => (
         <section className="game-section">
             <h2>{title}</h2>
             {gamesList.length === 0 ? (
@@ -137,6 +136,10 @@ function AllGames() {
                                 <small>
                                     Started: {new Date(game.startTime).toLocaleString()}
                                     {game.endTime && ` | Ended: ${new Date(game.endTime).toLocaleString()}`}
+                                    {isActive && game.players && game.players.map((player, index) => (
+                                        <span key={index}>{player.username} </span>
+                                    ))}
+                                    {isCompleted && game.winner && <span> | Winner: {game.winner}</span>}
                                 </small>
                             </div>
                         </li>
@@ -147,24 +150,30 @@ function AllGames() {
     );
 
     if (loading) {
-        return <div className="home"><Navbar /><main className="main"><p>Loading games...</p></main><Footer /></div>;
+        return <div className="home"><Navbar/>
+            <main className="main"><p>Loading games...</p></main>
+            <Footer/></div>;
     }
 
     if (error) {
-        return <div className="home"><Navbar /><main className="main"><p>{error}</p></main><Footer /></div>;
+        return <div className="home"><Navbar/>
+            <main className="main"><p>{error}</p></main>
+            <Footer/></div>;
     }
 
     return (
         <div className="home">
-            <Navbar />
+            <Navbar/>
             <main className="main">
                 <header><h1>All Games</h1></header>
                 <div className="main-container">
                     {username ? (
                         <>
+                            {renderGames("Open Games", games.openGames)}
                             {renderGames("My Open Games", games.myOpenGames)}
-                            {renderGames("My Active Games", games.myActiveGames)}
-                            {renderGames("My Completed Games", games.myCompletedGames)}
+                            {renderGames("My Active Games", games.myActiveGames, true)}
+                            {renderGames("My Completed Games", games.myCompletedGames, true, true)}
+                            {renderGames("Other Games", games.otherGames)}
                         </>
                     ) : (
                         <>
@@ -174,11 +183,11 @@ function AllGames() {
                     )}
                 </div>
             </main>
-            <Footer />
+            <Footer/>
         </div>
     );
 }
 
 export default AllGames;
 
-//current build working for logged in only.
+// works for logged in only, does not show winner
