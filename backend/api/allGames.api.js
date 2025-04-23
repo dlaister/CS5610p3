@@ -4,45 +4,35 @@ import {
     findGameById,
     insertGame,
     deleteGameById,
+    findMyOpenGames,
+    findMyActiveGames,
+    findMyCompletedGames,
+    findOpenGamesExcludingUser,
+    findOtherGames,
 } from '../db/model/allGames.model.js';
 
 const router = express.Router();
 
-// Get all games
+// Get all categorized games
 router.get('/', async (req, res) => {
     try {
         const { username } = req.query;
-        const allGames = await getAllGames();
 
-        const isLoggedIn = !!username;
-
-        if (!isLoggedIn) {
-            const activeGames = allGames.filter(
-                (g) => g.players.length === 2 && g.status === 'active'
-            );
-            const completedGames = allGames.filter((g) => g.status === 'completed');
+        if (!username) {
+            const allGames = await getAllGames();
+            const activeGames = allGames.filter(g => g.players.length === 2 && g.status === 'active');
+            const completedGames = allGames.filter(g => g.status === 'completed');
             return res.json({ activeGames, completedGames });
         }
 
-        const openGames = allGames.filter(
-            (g) => g.status === 'open' && g.creator !== username
-        );
-        const myOpenGames = allGames.filter(
-            (g) => g.status === 'open' && g.creator === username
-        );
-        const myActiveGames = allGames.filter((g) =>
-            g.status === 'active' &&
-            g.players.some((p) => p.username === username)
-        );
-        const myCompletedGames = allGames.filter((g) =>
-            g.status === 'completed' &&
-            g.players.some((p) => p.username === username)
-        );
-        const otherGames = allGames.filter(
-            (g) =>
-                (g.status === 'active' || g.status === 'completed') &&
-                !g.players.some((p) => p.username === username)
-        );
+        const [openGames, myOpenGames, myActiveGames, myCompletedGames, otherGames] =
+            await Promise.all([
+                findOpenGamesExcludingUser(username),
+                findMyOpenGames(username),
+                findMyActiveGames(username),
+                findMyCompletedGames(username),
+                findOtherGames(username),
+            ]);
 
         return res.json({
             openGames,
@@ -53,6 +43,70 @@ router.get('/', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch games', details: err });
+    }
+});
+
+// My open games
+router.get('/my-open', async (req, res) => {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ error: 'Username is required' });
+
+    try {
+        const games = await findMyOpenGames(username);
+        res.json(games);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch my open games', details: err });
+    }
+});
+
+// My active games
+router.get('/my-active', async (req, res) => {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ error: 'Username is required' });
+
+    try {
+        const games = await findMyActiveGames(username);
+        res.json(games);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch my active games', details: err });
+    }
+});
+
+// My completed games
+router.get('/my-completed', async (req, res) => {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ error: 'Username is required' });
+
+    try {
+        const games = await findMyCompletedGames(username);
+        res.json(games);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch my completed games', details: err });
+    }
+});
+
+// Open games (excluding creator)
+router.get('/open', async (req, res) => {
+    const { username } = req.query;
+
+    try {
+        const games = await findOpenGamesExcludingUser(username);
+        res.json(games);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch open games', details: err });
+    }
+});
+
+// Other games
+router.get('/other', async (req, res) => {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ error: 'Username is required' });
+
+    try {
+        const games = await findOtherGames(username);
+        res.json(games);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch other games', details: err });
     }
 });
 
@@ -72,62 +126,47 @@ router.post('/', async (req, res) => {
     try {
         const { creator, opponent, status } = req.body;
 
-        // Validate that creator is provided
-        if (!creator) {
-            return res.status(400).json({ error: 'Creator is required' });
-        }
+        if (!creator) return res.status(400).json({ error: 'Creator is required' });
 
-        // If the game is open, don't require an opponent
+        let gameData;
+
         if (status === 'open' && !opponent) {
-            // Proceed with creating an open game
-            const gameData = {
+            gameData = {
                 creator,
                 players: [{ username: creator, isCreator: true }],
                 status: 'open',
-                startTime: new Date(), // You can set the start time as the current time
+                startTime: new Date(),
             };
-            const game = await insertGame(gameData);
-            return res.status(201).json(game);
+        } else {
+            if (!opponent) return res.status(400).json({ error: 'Opponent is required for non-open games' });
+            gameData = {
+                creator,
+                players: [
+                    { username: creator, isCreator: true },
+                    { username: opponent, isCreator: false },
+                ],
+                status,
+                startTime: new Date(),
+            };
         }
-
-        // For non-open games (active, completed), both creator and opponent are required
-        if (!opponent) {
-            return res.status(400).json({ error: 'Both creator and opponent are required' });
-        }
-
-        // For other statuses, create the game with both creator and opponent
-        const gameData = {
-            creator,
-            players: [
-                { username: creator, isCreator: true },
-                { username: opponent, isCreator: false }
-            ],
-            status,
-            startTime: new Date(), // You can set the start time as the current time
-        };
 
         const game = await insertGame(gameData);
         res.status(201).json(game);
     } catch (err) {
-        console.error('Error creating game:', err); // Log error details
+        console.error('Error creating game:', err);
         res.status(400).json({ error: 'Failed to create game', details: err.message });
     }
 });
 
-// Delete a game by ID
+// Delete a game
 router.delete('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
-        const deleted = await deleteGameById(id);
-        if (!deleted) {
-            return res.status(404).json({ error: 'Game not found' });
-        }
+        const deleted = await deleteGameById(req.params.id);
+        if (!deleted) return res.status(404).json({ error: 'Game not found' });
         res.json({ message: 'Game deleted successfully' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete game', details: err.message });
     }
 });
-
-
 
 export default router;
